@@ -23,7 +23,7 @@ controller.hears(['\s?hello\s?', '\s?hi\s?'], 'direct_message,direct_mention,men
     bot.api.reactions.add({
         timestamp: message.ts,
         channel: message.channel,
-        name: 'robot_face',
+        name: 'walrus',
     }, function(err, res) {
         if (err) {
             bot.botkit.log('Failed to add emoji reaction :(', err);
@@ -37,6 +37,43 @@ controller.hears(['\s?hello\s?', '\s?hi\s?'], 'direct_message,direct_mention,men
         } else {
             bot.reply(message, 'Hello.');
         }
+    });
+});
+
+controller.hears(['^\/giphy '], 'direct_message,ambient', function(bot, message) {
+  bot.botkit.log(JSON.stringify(message));
+    controller.storage.users.get(message.user, function(err, user) {
+        if(!user) {
+          user = {
+              id: message.user,
+              gifcount: 0,
+          };
+        }
+
+        user.gifcount++;
+
+        controller.storage.users.save(user, function(err, id) {
+          if(user.gifcount > 1) {
+            if (user && user.name) {
+                bot.reply(message, user.name + ' uses too many gifs... ' + user.gifcount + ' to be exact.');
+            } else {
+                bot.reply(message, 'That guy uses too many gifs... ' + user.gifcount + ' to be exact.');
+            }
+          } else {
+            bot.api.reactions.add({
+                timestamp: message.ts,
+                channel: message.channel,
+                name: '-1',
+            }, function(err, res) {
+                if (err) {
+                    bot.botkit.log('Failed to add emoji reaction :(', err);
+                }
+            });
+          }
+          if(message.channel != 'C1157B8J0') {
+            bot.reply(message, 'Also, get that g*f back in #random!');
+          }
+        });
     });
 });
 
